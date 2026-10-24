@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FreshTag — Quét tem, biết ngay thịt tươi hay không</title>
+  <meta name="description" content="FreshTag kiểm tra độ tươi, truy xuất nguồn gốc và gợi ý món ngon từ tem cảm biến sinh học. Web app mobile-first, hoạt động như ứng dụng và hỗ trợ đọc tiếng Việt.">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="color-scheme" content="light dark">
+  <meta name="application-name" content="FreshTag">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FreshTag">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="FreshTag — Tem thông minh, bữa ăn an tâm">
+  <meta property="og:description" content="Quét tem sinh học để biết độ tươi, nguồn gốc và món ngon phù hợp. Bản demo trên GitHub Pages.">
+  <meta property="og:image" content="https://beg846.github.io/freshtag/assets/icons/icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://beg846.github.io/freshtag/">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = window.localStorage.getItem('freshtag.theme');
+        if (saved !== 'dark' && saved !== 'light') {
+          saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.colorScheme = saved;
+      } catch (error) { /* giữ giao diện sáng mặc định */ }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Chuyển đến nội dung chính</a>
+
+  <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7 17h10"/></symbol>
+    <symbol id="i-flashlight" viewBox="0 0 24 24"><path d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12Z"/><path d="M6 6h12M12 12v4"/></symbol>
+    <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+    <symbol id="i-tractor" viewBox="0 0 24 24"><path d="M4 11h8l-1-5H7.5L6 11"/><path d="M12 11 9.5 21"/><path d="M4 11a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M18 13a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M22 15v-2h-5"/></symbol>
+    <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-thermometer" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 9V3M14 9V3M10 9 5.5 19a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 9"/><path d="M7 15h10"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.1L5 10l5.1 1.9L12 17l1.9-5.1L19 10l-5.1-1.9Z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M10 17h4V5H2v12h3"/><path d="M14 9h4l4 4v4h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9 5 3h14l2 6"/><path d="M3 9v11h18V9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M9 20v-6h6v6"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01M10 21v-3h4v3"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.6 2.6a2 2 0 0 0-1.4-.6H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4Z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9V3Z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></symbol>
+  </svg>
+
+  <div class="page-decor" aria-hidden="true">
+    <div class="page-orb page-orb-1"></div>
+    <div class="page-orb page-orb-2"></div>
+  </div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="FreshTag — về trang đầu">
+        <span class="brand-mark"><svg class="ico"><use href="#i-leaf"/></svg></span>
+        <span class="brand-copy"><strong>FreshTag</strong><small>Tem thông minh</small></span>
+      </a>
+      <div class="topbar-actions">
+        <button class="icon-btn icon-btn-read" id="btnReadPage" type="button" aria-label="Đọc thông tin đang xem" title="Đọc thông tin">
+          <svg class="ico"><use href="#i-volume"/></svg><span>Đọc</span>
+        </button>
+        <button class="icon-btn" id="btnHistory" type="button" aria-label="Lịch sử quét" title="Lịch sử quét">
+          <svg class="ico"><use href="#i-history"/></svg>
+        </button>
+        <button class="icon-btn" id="btnTheme" type="button" aria-label="Đổi giao diện sáng tối" title="Đổi giao diện">
+          <svg class="ico ico-moon"><use href="#i-moon"/></svg>
+          <svg class="ico ico-sun"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <!-- ============ TAB: QUÉT ============ -->
+      <section class="view is-active" id="view-scan" aria-labelledby="scanHeading">
+        <div class="hero">
+          <div class="hero-pattern" aria-hidden="true"></div>
+          <div class="hero-inner">
+            <span class="eyebrow eyebrow-light"><svg class="ico"><use href="#i-sparkles"/></svg> Tem sinh học · Truy xuất số</span>
+            <h1 id="scanHeading">Quét tem.<br>Biết ngay thịt <em>tươi</em> hay không.</h1>
+            <p class="hero-sub">Kiểm tra độ tươi, nguồn gốc và nhận gợi ý món ngon — chỉ trong vài giây, ngay trên điện thoại.</p>
+            <div class="hero-actions">
+              <button class="btn btn-light btn-lg" id="btnScanHero" type="button">
+                <svg class="ico"><use href="#i-scan"/></svg> Quét mã QR
+              </button>
+              <button class="btn btn-ghost btn-lg" id="btnSamplesHero" type="button">
+                <svg class="ico"><use href="#i-qr"/></svg> Tem mẫu
+              </button>
+            </div>
+            <ul class="hero-assurance">
+              <li><svg class="ico"><use href="#i-check-circle"/></svg> Không cần đăng nhập</li>
+              <li><svg class="ico"><use href="#i-check-circle"/></svg> Có đọc tiếng Việt</li>
+            </ul>
+          </div>
+
+          <div class="hero-visual" aria-hidden="true">
+            <div class="hero-ring hero-ring-1"></div>
+            <div class="hero-ring hero-ring-2"></div>
+            <div class="scan-ticket">
+              <div class="ticket-head"><span>FRESHTAG</span><span class="ticket-live"><i></i> LIVE</span></div>
+              <div class="ticket-main">
+                <div class="ticket-tag">
+                  <svg class="ico"><use href="#i-leaf"/></svg>
+                  <small>FRESH</small>
+                  <strong>TƯƠI</strong>
+                </div>
+                <div class="ticket-qr">
+                  <svg viewBox="0 0 84 84" role="img" aria-label="Mã QR minh hoạ">
+                    <rect width="84" height="84" rx="8" fill="#fff"/>
+                    <g fill="#064e3b">
+                      <path d="M10 10h18v18H10zm4 4v10h10V14z"/><rect x="17" y="17" width="4" height="4"/>
+                      <path d="M56 10h18v18H56zm4 4v10h10V14z"/><rect x="63" y="17" width="4" height="4"/>
+                      <path d="M10 56h18v18H10zm4 4v10h10V60z"/><rect x="17" y="63" width="4" height="4"/>
+                      <rect x="34" y="10" width="4" height="4"/><rect x="42" y="14" width="4" height="4"/><rect x="34" y="22" width="4" height="4"/><rect x="46" y="22" width="4" height="4"/><rect x="38" y="30" width="4" height="4"/><rect x="46" y="32" width="4" height="4"/>
+                      <rect x="10" y="34" width="4" height="4"/><rect x="18" y="38" width="4" height="4"/><rect x="10" y="46" width="4" height="4"/><rect x="22" y="46" width="4" height="4"/><rect x="30" y="40" width="4" height="4"/><rect x="38" y="38" width="4" height="4"/><rect x="46" y="44" width="4" height="4"/><rect x="56" y="38" width="4" height="4"/><rect x="64" y="34" width="4" height="4"/><rect x="72" y="40" width="4" height="4"/>
+                      <rect x="34" y="50" width="4" height="4"/><rect x="42" y="52" width="4" height="4"/><rect x="30" y="58" width="4" height="4"/><rect x="38" y="62" width="4" height="4"/><rect x="46" y="58" width="4" height="4"/><rect x="54" y="54" width="4" height="4"/><rect x="62" y="50" width="4" height="4"/><rect x="70" y="56" width="4" height="4"/>
+                      <rect x="34" y="70" width="4" height="4"/><rect x="42" y="72" width="4" height="4"/><rect x="50" y="68" width="4" height="4"/><rect x="58" y="74" width="4" height="4"/><rect x="66" y="66" width="4" height="4"/><rect x="72" y="70" width="4" height="4"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+              <div class="ticket-foot"><span>FT-BEEF-8892</span><span class="ticket-ok"><svg class="ico"><use href="#i-check"/></svg> Đã xác thực</span></div>
+            </div>
+            <div class="float-chip float-chip-1"><svg class="ico"><use href="#i-shield"/></svg> An toàn 100%</div>
+            <div class="float-chip float-chip-2"><svg class="ico"><use href="#i-thermometer"/></svg> 2.4°C</div>
+          </div>
+        </div>
+
+        <div class="demo-note">
+          <svg class="ico"><use href="#i-info"/></svg>
+          <p><strong>Bản demo:</strong> dữ liệu tem, lô hàng và chứng nhận đều là minh hoạ. <button type="button" class="text-link" id="btnDemoInfo">Tìm hiểu thêm</button></p>
+        </div>
+
+        <div id="resultRoot" class="result-root" aria-live="polite"></div>
+
+        <section class="mini-faq" aria-labelledby="faqHeading">
+          <div class="sec-head">
+            <div><span class="kicker">Cẩm nang</span><h2 id="faqHeading">3 điều nên biết khi chọn thịt</h2></div>
+          </div>
+          <div class="faq-grid">
+            <article class="faq-card">
+              <span class="faq-icon"><svg class="ico"><use href="#i-thermometer"/></svg></span>
+              <h3>Giữ chuỗi lạnh</h3>
+              <p>Thịt tươi nên được bảo quản ở 0–4°C. Đừng để thịt ở nhiệt độ phòng quá 2 giờ.</p>
+            </article>
+            <article class="faq-card">
+              <span class="faq-icon"><svg class="ico"><use href="#i-shield"/></svg></span>
+              <h3>Đọc tem trước khi mua</h3>
+              <p>Tem chuyển cam là lúc cần nấu chín ngay. Tem tím thẫm là lúc phải bỏ lại quầy.</p>
+            </article>
+            <article class="faq-card">
+              <span class="faq-icon"><svg class="ico"><use href="#i-flask"/></svg></span>
+              <h3>Nấu chín đúng cách</h3>
+              <p>Nhiệt độ tâm thịt từ 72°C giúp giảm nguy cơ vi khuẩn gây bệnh. Rửa tay và dụng cụ sạch.</p>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <!-- ============ TAB: TEM ============ -->
+      <section class="view" id="view-tag" aria-labelledby="tagHeading" hidden>
+        <header class="view-head">
+          <span class="kicker">Hiểu về tem</span>
+          <h2 id="tagHeading">Tem đổi màu.<br>Bạn biết ngay.</h2>
+          <p>Tem cảm biến sinh học phản ứng với khí bay hơi từ thực phẩm. Màu tem thay đổi theo độ tươi — không cần pin, không cần máy đọc.</p>
+        </header>
+
+        <section class="card sim-card" aria-labelledby="simHeading">
+          <div class="sec-head">
+            <div><span class="kicker">Mô phỏng</span><h3 id="simHeading">Nếu bảo quản trong…</h3></div>
+            <span class="pill pill-demo">Tương tác</span>
+          </div>
+
+          <div class="sim-stage tone-safe" id="simStage">
+            <div class="sim-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="tag-disc tone-safe" id="simDisc">
+              <div class="tag-disc-inner">
+                <span class="tag-disc-brand">FRESHTAG</span>
+                <svg class="ico tag-disc-icon"><use href="#i-shield"/></svg>
+                <strong id="simTagText">TƯƠI</strong>
+                <small id="simTagSub">An toàn</small>
+              </div>
+            </div>
+            <div class="sim-readout">
+              <span class="sim-status" id="simStatus">Vùng an toàn</span>
+              <p id="simDesc">Thịt vẫn tươi, có thể chế biến ngay.</p>
+            </div>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Chọn điều kiện bảo quản">
+            <button type="button" data-storage="2" class="is-active" aria-pressed="true">Ngăn mát 2°C</button>
+            <button type="button" data-storage="4" aria-pressed="false">Tủ lạnh 4°C</button>
+            <button type="button" data-storage="30" aria-pressed="false">Ngoài trời 30°C</button>
+          </div>
+
+          <div class="range-head">
+            <label for="simDays">Thời gian bảo quản</label>
+            <output id="simDaysOut" for="simDays">Hôm nay</output>
+          </div>
+          <input class="range" id="simDays" type="range" min="0" max="7" step="0.5" value="0" aria-valuetext="Hôm nay">
+          <div class="range-scale" aria-hidden="true"><span>Hôm nay</span><span>3 ngày</span><span>7 ngày</span></div>
+
+          <div class="sim-metrics">
+            <div><span>TVB-N ước tính</span><strong><b id="simTvbn">6.0</b> mg/100g</strong></div>
+            <div><span>Ngưỡng an toàn</span><strong>≤ 15 mg/100g</strong></div>
+          </div>
+          <p class="tiny-note"><svg class="ico"><use href="#i-info"/></svg> Mô phỏng mang tính minh hoạ, không thay thế kết quả kiểm nghiệm.</p>
+        </section>
+
+        <section aria-labelledby="legendHeading">
+          <div class="sec-head">
+            <div><span class="kicker">Thang màu</span><h2 id="legendHeading">Nhìn tem, hiểu ngay</h2></div>
+          </div>
+          <div class="legend-list">
+            <article class="legend-item tone-safe">
+              <span class="legend-swatch"><span></span></span>
+              <div class="legend-copy">
+                <div class="legend-title"><h3>Xanh lá / vàng nhạt</h3><span>TƯƠI</span></div>
+                <p>Thịt tươi, chỉ số an toàn trong ngưỡng. Có thể chế biến ngay hoặc bảo quản lạnh.</p>
+              </div>
+            </article>
+            <article class="legend-item tone-warn">
+              <span class="legend-swatch"><span></span></span>
+              <div class="legend-copy">
+                <div class="legend-title"><h3>Cam / đỏ nhạt</h3><span>NẤU NGAY</span></div>
+                <p>Độ tươi đã giảm. Nấu chín kỹ ngay hôm nay, không ăn tái hoặc ăn sống.</p>
+              </div>
+            </article>
+            <article class="legend-item tone-danger">
+              <span class="legend-swatch"><span></span></span>
+              <div class="legend-copy">
+                <div class="legend-title"><h3>Tím thẫm / nâu</h3><span>KHÔNG ĂN</span></div>
+                <p>Vượt ngưỡng an toàn. Không sử dụng; giữ lại bao bì và liên hệ nơi mua.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="card science-card" aria-labelledby="scienceHeading">
+          <div class="sec-head">
+            <div><span class="kicker">Cơ chế</span><h2 id="scienceHeading">Vì sao tem khó làm giả?</h2></div>
+          </div>
+          <div class="science-list">
+            <div class="science-step">
+              <span class="step-num">01</span>
+              <div><h3>Cảm biến tiếp xúc khí thực phẩm</h3><p>Lớp chỉ thị sinh học phản ứng với hợp chất bay hơi như amoniac và amin — dấu hiệu thịt bắt đầu biến chất.</p></div>
+            </div>
+            <div class="science-step">
+              <span class="step-num">02</span>
+              <div><h3>Đổi màu theo ngưỡng</h3><p>Khi nồng độ khí tăng, pH trong lớp chỉ thị thay đổi và màu tem chuyển từ xanh sang cam, rồi tím thẫm.</p></div>
+            </div>
+            <div class="science-step">
+              <span class="step-num">03</span>
+              <div><h3>Không dùng năng lượng</h3><p>Tem hoạt động thụ động nên không có pin để sập nguồn hay can thiệp. Mỗi tem gắn một mã QR truy xuất riêng.</p></div>
+            </div>
+          </div>
+          <p class="tiny-note"><svg class="ico"><use href="#i-info"/></svg> FreshTag trong trang này là sản phẩm minh hoạ. Trên thực tế, màu tem cần được hiệu chuẩn theo loại thực phẩm và điều kiện bảo quản.</p>
+        </section>
+
+        <section class="card tips-card" aria-labelledby="tipsHeading">
+          <div class="sec-head">
+            <div><span class="kicker">Bảo quản</span><h2 id="tipsHeading">Giữ thịt tươi lâu hơn</h2></div>
+          </div>
+          <ul class="check-list">
+            <li><svg class="ico"><use href="#i-check"/></svg><span>Giữ thịt ở ngăn mát 0–4°C, đặt riêng để tránh nhiễm chéo.</span></li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span>Không rửa thịt trước khi cất; lau khô bề mặt và bọc kín.</span></li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span>Chia nhỏ khẩu phần trước khi cấp đông, dùng trong vòng 2–3 tháng.</span></li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span>Rã đông trong ngăn mát, không rã đông lại nhiều lần.</span></li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- ============ TAB: MÓN NGON ============ -->
+      <section class="view" id="view-recipes" aria-labelledby="recipeHeading" hidden>
+        <header class="view-head">
+          <span class="kicker">Hôm nay ăn gì?</span>
+          <h2 id="recipeHeading">Món ngon cho<br>đúng phần thịt.</h2>
+          <p>Gợi ý công thức dựa trên loại thịt và độ tươi của lô hàng bạn đang xem.</p>
+        </header>
+        <div id="recipeContext"></div>
+        <div class="chip-row" id="recipeFilters" role="group" aria-label="Lọc công thức"></div>
+        <div id="recipeList" class="recipe-list"></div>
+        <p class="tiny-note"><svg class="ico"><use href="#i-info"/></svg> Công thức và thời gian nấu mang tính tham khảo. Luôn nấu chín kỹ và bảo đảm vệ sinh an toàn thực phẩm.</p>
+      </section>
+
+      <!-- ============ TAB: NÔNG TRẠI ============ -->
+      <section class="view" id="view-farm" aria-labelledby="farmHeading" hidden>
+        <header class="view-head">
+          <span class="kicker">Truy xuất nguồn gốc</span>
+          <h2 id="farmHeading">Từ trang trại<br>đến bàn ăn.</h2>
+          <p>Mỗi lô hàng có một hành trình riêng. Xem nơi sản xuất, mốc kiểm định và chuỗi lạnh.</p>
+        </header>
+        <div id="farmContent"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="footer-brand">
+        <span class="brand-mark brand-mark-sm"><svg class="ico"><use href="#i-leaf"/></svg></span>
+        <div><strong>FreshTag</strong><span>Tem thông minh · Bữa ăn an tâm</span></div>
+      </div>
+      <p>Dự án demo mã nguồn mở. Dữ liệu sản phẩm, chứng nhận và kết quả kiểm nghiệm trong trang chỉ mang tính minh hoạ, không dùng để kết luận về thực phẩm thật.</p>
+      <div class="footer-links">
+        <button type="button" class="text-link" id="btnFooterSamples">Tem mẫu</button>
+        <span>·</span>
+        <button type="button" class="text-link" id="btnFooterInfo">Về FreshTag</button>
+        <span>·</span>
+        <a href="https://github.com/Beg846/freshtag" target="_blank" rel="noopener">GitHub <svg class="ico ico-xs"><use href="#i-external"/></svg></a>
+      </div>
+    </footer>
+
+    <nav class="tabbar" aria-label="Điều hướng chính">
+      <button type="button" class="tab is-active" data-tab="scan" aria-current="page">
+        <span class="tab-icon"><svg class="ico"><use href="#i-scan"/></svg></span><span>Quét</span>
+      </button>
+      <button type="button" class="tab" data-tab="tag">
+        <span class="tab-icon"><svg class="ico"><use href="#i-tag"/></svg></span><span>Tem</span>
+      </button>
+      <button type="button" class="tab" data-tab="recipes">
+        <span class="tab-icon"><svg class="ico"><use href="#i-utensils"/></svg></span><span>Món ngon</span>
+      </button>
+      <button type="button" class="tab" data-tab="farm">
+        <span class="tab-icon"><svg class="ico"><use href="#i-tractor"/></svg></span><span>Nông trại</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ============ OVERLAY: QUÉT CAMERA ============ -->
+  <div class="overlay scanner-overlay" id="scannerOverlay" role="dialog" aria-modal="true" aria-labelledby="scannerTitle" hidden>
+    <div class="scanner-shell">
+      <div class="scanner-topbar">
+        <button class="round-btn round-btn-dark" id="btnCloseScanner" type="button" aria-label="Đóng trình quét">
+          <svg class="ico"><use href="#i-close"/></svg>
+        </button>
+        <div class="scanner-title"><strong id="scannerTitle">Quét mã QR FreshTag</strong><span>Đưa mã vào giữa khung</span></div>
+        <button class="round-btn round-btn-dark" id="btnTorch" type="button" aria-label="Bật đèn pin" aria-pressed="false" hidden>
+          <svg class="ico"><use href="#i-flashlight"/></svg>
+        </button>
+      </div>
+
+      <div class="scanner-viewport" id="scannerViewport">
+        <video id="scannerVideo" playsinline muted autoplay></video>
+        <div class="scanner-shade"></div>
+        <div class="scanner-frame" aria-hidden="true">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <span class="scan-line"></span>
+        </div>
+        <div class="scanner-placeholder" id="scannerPlaceholder">
+          <span class="scanner-placeholder-icon"><svg class="ico"><use href="#i-camera"/></svg></span>
+          <p>Đang khởi động camera…</p>
+          <small>Nếu trình duyệt hỏi quyền camera, hãy chọn “Cho phép”.</small>
+        </div>
+        <div class="scanner-status" id="scannerStatus" role="status" aria-live="polite">Đang chuẩn bị…</div>
+      </div>
+
+      <div class="scanner-panel">
+        <p class="scanner-panel-copy">Camera chỉ dùng để đọc mã QR và không ghi lại hình ảnh.</p>
+        <div class="scanner-actions">
+          <button class="btn btn-dark-outline" id="btnManualCode" type="button"><svg class="ico"><use href="#i-keyboard"/></svg> Nhập mã</button>
+          <button class="btn btn-dark-outline" id="btnSamplesScan" type="button"><svg class="ico"><use href="#i-qr"/></svg> Tem mẫu</button>
+        </div>
+        <form class="manual-form" id="manualForm" hidden novalidate>
+          <label class="sr-only" for="manualCode">Mã tem</label>
+          <input id="manualCode" name="code" type="text" inputmode="text" autocomplete="off" placeholder="Ví dụ: FT-BEEF-8892" spellcheck="false">
+          <button class="btn btn-light" type="submit">Mở tem</button>
+        </form>
+        <p class="scanner-hint">Mã demo: <button type="button" data-demo-code="FT-BEEF-8892">FT-BEEF-8892</button> · <button type="button" data-demo-code="FT-PORK-4102">FT-PORK-4102</button> · <button type="button" data-demo-code="FT-BEEF-0012">FT-BEEF-0012</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SHEET: TEM MẪU ============ -->
+  <div class="overlay sheet-overlay" id="samplesModal" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="samplesTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="sheet-head">
+        <div><h2 id="samplesTitle">Tem mẫu để thử</h2><p>Chạm để mở kết quả, hoặc quét mã QR bằng điện thoại khác.</p></div>
+        <button class="round-btn" type="button" data-close="samplesModal" aria-label="Đóng"><svg class="ico"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="sheet-body">
+        <div class="sample-list" id="samplesList"></div>
+        <div class="sheet-note"><svg class="ico"><use href="#i-info"/></svg><p>Mã QR mở trực tiếp lô hàng tương ứng. Trên bản deploy GitHub Pages, bạn có thể dùng điện thoại khác để quét thử.</p></div>
+        <button class="btn btn-soft btn-block" type="button" data-close="samplesModal">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SHEET: LỊCH SỬ ============ -->
+  <div class="overlay sheet-overlay" id="historyModal" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="sheet-head">
+        <div><h2 id="historyTitle">Lịch sử quét</h2><p>Lưu trên thiết bị này, không gửi lên máy chủ.</p></div>
+        <div class="sheet-head-actions">
+          <button class="text-btn" type="button" id="btnClearHistory"><svg class="ico"><use href="#i-trash"/></svg> Xoá</button>
+          <button class="round-btn" type="button" data-close="historyModal" aria-label="Đóng"><svg class="ico"><use href="#i-close"/></svg></button>
+        </div>
+      </header>
+      <div class="sheet-body">
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: CHỨNG NHẬN ============ -->
+  <div class="overlay center-overlay" id="certModal" hidden>
+    <div class="dialog cert-dialog" role="dialog" aria-modal="true" aria-labelledby="certTitle">
+      <button class="round-btn dialog-close" type="button" data-close="certModal" aria-label="Đóng chứng nhận"><svg class="ico"><use href="#i-close"/></svg></button>
+      <div id="certContent"></div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: GIỚI THIỆU ============ -->
+  <div class="overlay center-overlay" id="infoModal" hidden>
+    <div class="dialog info-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+      <button class="round-btn dialog-close" type="button" data-close="infoModal" aria-label="Đóng"><svg class="ico"><use href="#i-close"/></svg></button>
+      <span class="kicker">Về dự án</span>
+      <h2 id="infoTitle">FreshTag là gì?</h2>
+      <p>FreshTag là một web app demo cho tem thực phẩm thông minh: quét mã QR trên tem, xem độ tươi, truy xuất nguồn gốc, đọc chứng nhận và nhận gợi ý món ngon.</p>
+      <p>Trang chạy hoàn toàn phía trình duyệt, không có máy chủ và không gửi dữ liệu đi đâu. Lịch sử quét được lưu trong <code>localStorage</code> trên máy bạn. Camera chỉ hoạt động khi bạn bấm “Quét mã QR”.</p>
+      <div class="info-badges">
+        <span><svg class="ico"><use href="#i-lock"/></svg> Không theo dõi</span>
+        <span><svg class="ico"><use href="#i-install"/></svg> Cài như ứng dụng</span>
+        <span><svg class="ico"><use href="#i-globe"/></svg> Mã nguồn mở</span>
+      </div>
+      <h3>Dữ liệu demo</h3>
+      <p>Toàn bộ sản phẩm, trang trại, số chứng nhận và chỉ số kiểm nghiệm đều là hư cấu, dùng để trình diễn giao diện. Không sử dụng trang này để đánh giá thực phẩm thật.</p>
+      <h3>Mã nguồn</h3>
+      <p>Mã nguồn được công bố trên <a href="https://github.com/Beg846/freshtag" target="_blank" rel="noopener">GitHub</a>. Thư viện dùng lại: jsQR (Apache-2.0), qrcode-generator (MIT), Lucide icons (ISC).</p>
+      <button class="btn btn-primary btn-block" type="button" data-close="infoModal">Đã hiểu</button>
+    </div>
+  </div>
+
+  <!-- ============ CÀI ĐẶT PWA ============ -->
+  <div class="install-banner" id="installBanner" hidden>
+    <span class="install-banner-icon"><svg class="ico"><use href="#i-leaf"/></svg></span>
+    <div class="install-banner-copy"><strong>Cài FreshTag</strong><span>Mở nhanh như một ứng dụng</span></div>
+    <button class="btn btn-primary btn-sm" id="btnInstall" type="button">Cài đặt</button>
+    <button class="icon-btn icon-btn-sm" id="btnDismissInstall" type="button" aria-label="Để sau"><svg class="ico"><use href="#i-close"/></svg></button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div class="noscript">FreshTag cần JavaScript để quét tem và hiển thị kết quả. Hãy bật JavaScript rồi tải lại trang.</div>
+  </noscript>
+</body>
+</html>
